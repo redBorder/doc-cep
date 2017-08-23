@@ -1,0 +1,20 @@
+:doctype: book
+:author: redborder
+:copyrights: GNU Affero General Public License
+:lang: es
+:docinfo:
+:revnumber: 1.0.0
+:keywords: redborder, cep, correlation, siddhi, wso2, rb
+:toc:
+:toc-title: Índice
+:toclevels: 3
+:toc-position: left
+:nofooter:
+:header:
+:icons: font
+:table-caption: Tabla
+:stem: latexmath
+
+= RedBorder CEP documentation
+
+include::chapters/01-introduction.adoc[]
