@@ -14,3 +14,81 @@ Los eventos están asociados únicamente a un flujo y tienen un conjunto de atri
 image::images/event-flow.png[]
 
 TIP: Supongamos que definimos un flujo de eventos llamado "*figuras*" (Véase **Figure 1**) en el cuál se irá recibiendo una figura aleatoria a lo largo del tiempo. Un esquema válido para este flujo sería: figura = { id: int, shape: string, color: string, sides: int, timestamp: long }
+
+==== Consultas
+
+Siddhi dispone de un lenguaje DSL que permite operar con los eventos recibidos en un flujo. Con este lenguaje se pueden diseñar consultas.
+
+Las consultas son construcciones lógicas que deriva nuevos streams al combinar streams ya existentes. Una consulta continene uno o varios flujos de eventos, manipuladores para modificar aquellos flujos de entrada, y un flujo de salida en el que publicar los eventos generados.
+
+****
+*from* <input stream name>
+*select* <attribute name>, <attribute name>, …
+*insert into* <output stream name>
+****
+
+Cada consulta de Siddhi puede consumir uno o varios flujos de eventos y crea un nuevo flujo de salida a partir de ellos.
+
+===== Proyecciones en las consultas
+
+Una consulta de Siddhi tiene tres partes claramente diferenciables en sus consulta, una entrada (*from*), una salida (*insert into*) y una sección de proyección (*select*). Siddhi soporta las siguientes proyecciones:
+
+* *Selección de los atributos necesario*
+
+Permite seleccionar aquellos atributos del esquema definido que necesitamos.
+
+*****
+*from* inputStream *select* attributeA, attributeB *insert into* outputStream
+*****
+
+En la consulta anterior estamos seleccionando del flujo de eventos "inputStream" los atributos "attributeA" y "attributeB" y los estamos insertando en el flujo de salida "outputStream".
+
+* *Selección de todos los atributos*
+
+Permite seleccionar todos los atributos del esquema definido.
+
+*****
+*from* inputStream *select* * *insert into* outputStream
+*****
+
+En la consulta anterior estamos seleccionando del flujo de eventos "inputStream" todos los atributos y los estamos insertando en el flujo de salida "outputStrem". En este caso práctico la entrada es igual a la salida.
+
+* Renombrado de atributos
+
+Permite renombra los atributos seleccionados del esquema definido.
+
+*****
+*from* inputStream *select* attributeA *as* fieldA, attributeB *as* fieldB *insert into* outputStream
+*****
+
+En la consulta anterior estamos seleccionando del flujo "inputStream" los atributos "attributeA" y "attributeB" y los estamos insertando en el flujo de salida "outputStream" como atributos "fieldA" y "fieldB".
+
+* Introducir los valores por defecto
+
+Permite introducir valores por defecto, este valor sobreescribe el del atributo si este existiera.
+
+*****
+*from* inputStream *select* attributeA, 'valueB' as attributeB *insert into* outputStream
+*****
+
+En la consulta anterior estamos seleccionando del flujo "inputStream" el atributo "attributeA" y estamos insertando el atributo "attributeB" con valor por defecto "valueB" en el flujo de salida "outputStream".
+
+* Uso de expresiones matemáticas y lógicas
+
+Siddhi permite el uso de expresiones matemáticas y lógicas en sus proyecciones. En la siguiente tabla se hace referencia a ellas:
+
+[options="header"]
+|====================================
+|Operador|Descripción|Ejemplo
+|() |Alcance |`(cost + tax) * 0.5`
+|IS NULL |Comprueba si un atributo es nulo|  is null
+|NOT |Negación lógica |not (price > 10)
+|* / % |Multiplicación, división y módulo| temp * 9/5 + 32
+|+ - |Suma y resta| temp * 9/5 + 32
+|< <= > <= |Comparaciones: menos que, mayor o igual que, mayor que, menor o igual que |
+totalCost >= price * quantity
+|== != |Comparaciones: Igual, distinto |
+totalCost >= price * quantity
+|AND |Conjunción lógica (Y) |temp < 40 and (humidity < 40 or humidity >= 60)
+|OR |Disyunción lógica (O) |temp < 40 and (humidity < 40 or humidity >= 60)
+|====================================
