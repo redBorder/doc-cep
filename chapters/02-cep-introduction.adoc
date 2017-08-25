@@ -98,3 +98,27 @@ totalCost >= price * quantity
 *select* roomNo, temp * 9/5 + 32 *as* temp, 'F' *as* scale, roomNo >= 100 and roomNo < 110 as isServerRoom
 *insert into* RoomTempStream;
 *****
+
+==== Filtros
+Siddhi tiene la capacidad de aplicar filtros a sus flujos de entrada permitiendo filtrar los eventos que se van recibiendo por el criterio que deseemos.
+
+*****
+*from* <input stream name>[<filter condition>]
+*select* <attribute name>, <attribute name>, ...
+*insert into* <output stream name>
+*****
+
+Las operaciones que pueden utilizarse para la creación de un filtro son:
+
+* Operaciones de comparación menor que (*<*), menor o igual que (*<=*), mayor que (*>*), mayor o igual que (*>=*), igual a (*==*) y distinto (*!=*).
+* Operaciones lógicas de conjunción (*and*), disyunción (*or*) y negación (*not*)
+* Operación de comprobación de contenido de cadena (*contains*)
+* Operación de tipo de dato (*instanceof*)
+
+*****
+*from* TempStream [ (roomNo >= 100 and roomNo < 110) and temp > 40 ]
+*select* roomNo, temp
+*insert into* HighTempStream;
+*****
+
+TIP: En el ejemplo anterior se está aplicando un filtro en el flujo de entrada *TempStream* en el cual se escifica que el número de habitación sea mayor o igual a 100 y menor a 110 y cuya temperatura sea de mayor de 40.
