@@ -144,3 +144,19 @@ Según la clasificación de los eventos:
 * *expired events*: La ventana emitirá los eventos que hayan expirado.
 * *current events*: La ventana emitirá los eventos cada vez que se reciba uno.
 * *all events*: La ventana emitirá tanto los eventos actuales como los que han expirado.
+
+
+===== Agregaciones
+
+Siddhi dispone de una serie de funciones de agregación para llevar a cabo cálculos de los valores de los atributos indicados dentro de la ventana definida. Para ello los atributos tienen que ser de tipo `int`, `long`, `double` o `float`. Estas agregaciones son:
+
+* *sum*: Calcula la suma &#x27f6; __sum(<my-attribute>) as mySum__
+* *average*: Calcula la media &#x27f6; __avg(<my-attribute>) as myAvg__
+* *max*: Obtiene el máximo valor &#x27f6; __max(<my-attribute>) as myMax__
+* *min*: Obtiene el mínimo valor &#x27f6; __min(<my-attribute>) as myMin__
+* *count*: Cuenta el número de eventos recibidos &#x27f6; __count() as events__
+* *stddev*: Calcula la desviación estandar &#x27f6; __stddev(<my-attribute>) as myStddev__
+
+WARNING: Nótese que a las funciones de agregación se le aplica un renombrado, esto se debe a que siddhi no reconoce las funciones de agregación como atributos del flujo de eventos con el que se está trabajando.
+
+Si no se aplicaran funciones de agregación entonces obtendríamos una salida igual a la entrada del flujo, variando únicamente en el tiempo de emisión de los eventos que depende del tipo de ventana utilzada.
