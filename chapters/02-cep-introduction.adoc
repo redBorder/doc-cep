@@ -136,7 +136,7 @@ La salida de las funciones de ventana puede ser manipulada en base a la clasific
 *****
 *from* <input stream name>[ <filter condition> ]#window.<windowFunction>
 *select* <attribute name>, <attribute name>, ...
-*insert* [expired events | current events | all events] *into* <output stream name>
+*insert* [ *__expired events__* | *__current events__* | *__all events__* ] *into* <output stream name>
 *****
 
 Según la clasificación de los eventos:
@@ -144,7 +144,6 @@ Según la clasificación de los eventos:
 * *expired events*: La ventana emitirá los eventos que hayan expirado.
 * *current events*: La ventana emitirá los eventos cada vez que se reciba uno.
 * *all events*: La ventana emitirá tanto los eventos actuales como los que han expirado.
-
 
 ===== Agregaciones
 
@@ -187,7 +186,7 @@ Ventana que procesa los eventos por lotes. Recolecta los eventos recibidos dentr
 
 * *Ventana de longitud*: <event> length(<int> windowLength)
 
-Ventana deslizante que mantiene los últimos elementos recibidos.
+Ventana deslizante que mantiene los últimos elementos recibidos en una ventana de tamaño "*windowLength*".
 
 *Ejemplo*: Calcular la suma del valor del atributo "*attrA*" de los 5 últimos evetnos recibidos.
 
@@ -197,7 +196,7 @@ Ventana deslizante que mantiene los últimos elementos recibidos.
 
 * *Ventana de longitud por lotes*: <event> lengthBatch(<int> windowLength)
 
-Ventana deslizante que emite los eventos como un lote a la llegada del i-ésimo evento.
+Ventana deslizante que emite los eventos como un lote a la llegada del i-ésimo evento en una ventana de tamaño "*windowLength*".
 
 *Ejemplo*: Calcular la suma del valor del atributo "*attrA*" cada 5 eventos recolectados.
 
@@ -207,7 +206,7 @@ Ventana deslizante que emite los eventos como un lote a la llegada del i-ésimo 
 
 * *Ventana deslizante de tiempo externo*: <event> time(<long> timestmap, <int|long|time> windowTime)
 
-Ventana deslizante que trabaja con el tiempo proporcionado por el flujo de eventos de entrada en lugar de utiliza la fecha de la máquina.
+Ventana deslizante que trabaja con el tiempo proporcionado por el flujo de eventos de entrada en lugar de utilizar el de la máquina.
 
 *Ejemplo*: Calcular la suma del valor del atributo "attrA" utilizando una ventana de tiempo de 15 segundos y cuya marca de tiempo vendrá determinada por el campo "timestamp" del flujo de eventos entrante que está procesando.
 
@@ -267,7 +266,7 @@ Ventana que devuelve los últimos eventos más frecuentes recibidos. El cálculo
 
 * *Ventana deslizante de frecuencia con pérdidas*: <event> lossyFrequent(<double> supportThreshold, <double> errorBound)
 
-Ventana que identificará y devolverá todos los eventos cuya frecuencia exceda el valor "supportThreshold". El cálculo de la frecuencia se basa en el algoritmo de __Lossy Counting__
+Ventana que identificará y devolverá todos los eventos cuya frecuencia exceda el valor "*supportThreshold*". El cálculo de la frecuencia se basa en el algoritmo de __Lossy Counting__
 
 *****
 *from* inputStream#window.lossyFrequent(0.1, 0.01) select * insert into outputStream
