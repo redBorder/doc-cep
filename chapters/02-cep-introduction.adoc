@@ -160,3 +160,115 @@ Siddhi dispone de una serie de funciones de agregación para llevar a cabo cálc
 WARNING: Nótese que a las funciones de agregación se le aplica un renombrado, esto se debe a que siddhi no reconoce las funciones de agregación como atributos del flujo de eventos con el que se está trabajando.
 
 Si no se aplicaran funciones de agregación entonces obtendríamos una salida igual a la entrada del flujo, variando únicamente en el tiempo de emisión de los eventos que depende del tipo de ventana utilzada.
+
+===== Tipos de ventanas
+
+Siddhi ofrece las siguientes funciones de ventana:
+
+* *Ventana de tiempo*: <event> time(<int|long|time> windowTime)
+
+Ventana deslizante que mantiene los eventos que se han recibido durante el último periodo de tiempo "*windowTime*".
+
+*Ejemplo*: Calcular la suma del valor del atributo "*attrA*" de los eventos que estén dentro de la ventana de 15 segundos.
+
+*****
+*from* inputStream#window.time(15 sec) select sum(attrA) insert into outputStream
+*****
+
+* *Ventana de tiempo por lotes*: <event> timeBatch(<int|long|time> windowTime)
+
+Ventana que procesa los eventos por lotes. Recolecta los eventos recibidos dentro del último periodo "*windowTime*" y los agrupa en un único lote.
+
+*Ejemplo*: Calcular la suma del valor del atributo "*attrA*" de los eventos recolectados cada 15 segundos.
+
+*****
+*from* inputStream#window.timeBatch(15 sec) select sum(attrA) insert into outputStream
+*****
+
+* *Ventana de longitud*: <event> length(<int> windowLength)
+
+Ventana deslizante que mantiene los últimos elementos recibidos.
+
+*Ejemplo*: Calcular la suma del valor del atributo "*attrA*" de los 5 últimos evetnos recibidos.
+
+*****
+*from* inputStream#window.length(5) select sum(attrA) insert into outputStream
+*****
+
+* *Ventana de longitud por lotes*: <event> lengthBatch(<int> windowLength)
+
+Ventana deslizante que emite los eventos como un lote a la llegada del i-ésimo evento.
+
+*Ejemplo*: Calcular la suma del valor del atributo "*attrA*" cada 5 eventos recolectados.
+
+*****
+*from* inputStream#window.lengthBatch(5) select sum(attrA) insert into outputStream
+*****
+
+* *Ventana deslizante de tiempo externo*: <event> time(<long> timestmap, <int|long|time> windowTime)
+
+Ventana deslizante que trabaja con el tiempo proporcionado por el flujo de eventos de entrada en lugar de utiliza la fecha de la máquina.
+
+*Ejemplo*: Calcular la suma del valor del atributo "attrA" utilizando una ventana de tiempo de 15 segundos y cuya marca de tiempo vendrá determinada por el campo "timestamp" del flujo de eventos entrante que está procesando.
+
+*****
+*from* inputStream#window.externalTime(timestamp, 15 sec) select sum(attrA) insert into outputStream
+*****
+
+* *Ventana deslizante con cron*: <event> cron(<string> cronExpression)
+
+Ventana deslizante que procesa los eventos en base a un patrón de tiempo basado en una expresión de cron.
+
+*Ejemplo*: Calcular la suma del valor del atributo "attrA" cada 5 segundos.
+
+*****
+*from* inputStream#window.cron('*/5 * * * * ?') select sum(attrA) insert into outputStream
+*****
+
+* *Ventana deslizante de primeras únicas ocurrencias*: <event> firstUnique(<string> attribute)
+
+Ventana que mantiene únicamente los primeros eventos que son únicos en base a un atributo especificado.
+
+*Ejemplo*: Obtener el primer evento de todas las IPs.
+
+*****
+*from* inputStream#window.firstUnique(ip) select * insert into outputStream
+*****
+
+* *Ventana deslizante de últimas ocurrencias únicas*: <event> unique(<string> attribute)
+
+Ventana que mantiene los últimos eventos que son únicos en base a un atributo especificado.
+
+*Ejemplo*: Obtener el último evento único de todas las IPs.
+
+*****
+*from* inputStream#window.unique(ip) select * insert into outputStream
+*****
+
+* *Ventana deslizante de ordenamiento*: <event> sort(<int> windowLength, <string> attribute, <string> order, .. , <string> attributeN, <string> orderN)
+
+Ventana que ordena los atributos especificados de forma ascendete o descendente.
+
+*Ejemplo*: Mantener 5 eventos ordenados por precio de forma ascendente.
+
+*****
+*from* inputStream#window.sort(5, price, asc) select * insert into outputStream
+*****
+
+* *Ventana deslizante de frecuencia*: <event> frequent(<int> eventCount, <string> attribute, .. , <string> attributeN)
+
+Ventana que devuelve los últimos eventos más frecuentes recibidos. El cálculo de la frecuencia se basa en el algoritmo de contenio Misra-Gries.
+
+*Ejemplo*: Obtener los 3 eventos más frecuentes.
+
+*****
+*from* inputStream#window.frequent(3) select * insert into outputStream
+*****
+
+* *Ventana deslizante de frecuencia con pérdidas*: <event> lossyFrequent(<double> supportThreshold, <double> errorBound)
+
+Ventana que identificará y devolverá todos los eventos cuya frecuencia exceda el valor "supportThreshold". El cálculo de la frecuencia se basa en el algoritmo de __Lossy Counting__
+
+*****
+*from* inputStream#window.lossyFrequent(0.1, 0.01) select * insert into outputStream
+*****
