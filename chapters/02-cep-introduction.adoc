@@ -122,3 +122,25 @@ Las operaciones que pueden utilizarse para la creación de un filtro son:
 *****
 
 TIP: En el ejemplo anterior se está aplicando un filtro en el flujo de entrada *TempStream* en el cual se escifica que el número de habitación sea mayor o igual a 100 y menor a 110 y cuya temperatura sea de mayor de 40.
+
+==== Ventanas
+
+Siddhi dispone de funciones de ventanas que permiten recolectar y trabajar sobre un subconjunto limitado de eventos.
+
+WARNING: Los flujos de eventos de entradas sólo pueden tener una función de ventana asociada.
+
+Las funciones de ventanas pueden emitir dos tipos eventos por cada evento que consumen: Los eventos actuales y los eventos que han expirado. La función de ventana emite los eventos actuales (*current-event*) cuando llega un nuevo evento y emite los eventos expirados (*expired-event*) cuando un evento expira debido al criterio de la ventana.
+
+La salida de las funciones de ventana puede ser manipulada en base a la clasificación de los eventos.
+
+*****
+*from* <input stream name>[ <filter condition> ]#window.<windowFunction>
+*select* <attribute name>, <attribute name>, ...
+*insert* [expired events | current events | all events] *into* <output stream name>
+*****
+
+Según la clasificación de los eventos:
+
+* *expired events*: La ventana emitirá los eventos que hayan expirado.
+* *current events*: La ventana emitirá los eventos cada vez que se reciba uno.
+* *all events*: La ventana emitirá tanto los eventos actuales como los que han expirado.
