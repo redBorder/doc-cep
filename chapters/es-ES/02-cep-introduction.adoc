@@ -11,7 +11,7 @@ Un flujo de eventos está identificado por un nombre y tiene un conjunto de atri
 Los eventos están asociados únicamente a un flujo y tienen un conjunto de atributos idénticos con tipos específicos. Un evento debe contener una marca de tiempo y los atributos de acuerdo a su esquema.
 
 .Flujo de eventos
-image::../images/event-flow.png[]
+image::{img_path}/event-flow.png[]
 
 TIP: Supongamos que definimos un flujo de eventos llamado "*figuras*" (Véase **Figure 1**) en el cuál se irá recibiendo una figura aleatoria a lo largo del tiempo. Un esquema válido para este flujo sería: figura = { id: int, shape: string, color: string, sides: int, timestamp: long }
 
