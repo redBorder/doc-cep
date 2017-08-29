@@ -21,4 +21,6 @@ Siddhi tiene muchas características entre ellas podemos destacar:
 * Filtro y proyección de consultas usando expresiones matemáticas y lógicas.
 * Valores por defecto en los atributos.
 * Funciones integradas utiles para el procesamiento de eventos como, por ejemplo, ventanas de tiempo.
-* Renombrado de atributos.
+* Renombrado de atributos
+
+
