@@ -29,7 +29,7 @@ Las consultas son construcciones lógicas que deriva nuevos streams al combinar 
 
 Cada consulta de Siddhi puede consumir uno o varios flujos de eventos y crea un nuevo flujo de salida a partir de ellos.
 
-===== Proyecciones en las consultas
+==== Proyecciones en las consultas
 
 Una consulta de Siddhi tiene tres partes claramente diferenciables en sus consulta, una entrada (*from*), una salida (*insert into*) y una sección de proyección (*select*). Siddhi soporta las siguientes proyecciones:
 
