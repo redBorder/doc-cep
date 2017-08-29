@@ -1,7 +1,8 @@
-BASE=rb-cep-dsl
+BASE=cep-documentation
 OUTDIR=docs
-MAIN=$(BASE).adoc
 CHAPTERS=chapters
+LANG=es-ES
+MAIN=$(LANG)_$(BASE).adoc
 
 .PHONY: html
 html: $(SOURCES) styles/$(CSS)
