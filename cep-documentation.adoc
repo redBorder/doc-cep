@@ -17,5 +17,5 @@
 
 = RedBorder CEP documentation
 
-include::chapters/{lang}/01-introduction.adoc[]
-include::chapters/{lang}/02-cep-introduction.adoc[]
+include::chapters/{i18n}/01-introduction.adoc[]
+include::chapters/{i18n}/02-cep-introduction.adoc[]
