@@ -53,7 +53,7 @@ Permite seleccionar todos los atributos del esquema definido.
 
 En la consulta anterior estamos seleccionando del flujo de eventos "inputStream" todos los atributos y los estamos insertando en el flujo de salida "outputStrem". En este caso práctico la entrada es igual a la salida.
 
-* Renombrado de atributos
+* *Renombrado de atributos*
 
 Permite renombra los atributos seleccionados del esquema definido.
 
@@ -63,7 +63,7 @@ Permite renombra los atributos seleccionados del esquema definido.
 
 En la consulta anterior estamos seleccionando del flujo "inputStream" los atributos "attributeA" y "attributeB" y los estamos insertando en el flujo de salida "outputStream" como atributos "fieldA" y "fieldB".
 
-* Introducir los valores por defecto
+* *Introducir los valores por defecto*
 
 Permite introducir valores por defecto, este valor sobreescribe el del atributo si este existiera.
 
@@ -73,7 +73,7 @@ Permite introducir valores por defecto, este valor sobreescribe el del atributo 
 
 En la consulta anterior estamos seleccionando del flujo "inputStream" el atributo "attributeA" y estamos insertando el atributo "attributeB" con valor por defecto "valueB" en el flujo de salida "outputStream".
 
-* Uso de expresiones matemáticas y lógicas
+* *Uso de expresiones matemáticas y lógicas*
 
 Siddhi permite el uso de expresiones matemáticas y lógicas en sus proyecciones. En la siguiente tabla se hace referencia a ellas:
 
