@@ -1,16 +1,17 @@
-BASE=rb-cep-dsl
+BASE=cep-documentation
 OUTDIR=docs
-MAIN=$(BASE).adoc
 CHAPTERS=chapters
+LANG=es-ES
+MAIN=$(BASE).adoc
 
 .PHONY: html
 html: $(SOURCES) styles/$(CSS)
-	asciidoctor $(MAIN) -a stylesheet=./styles/rubygems.css --attribute tabsize=4 -o $(OUTDIR)/index.html
-	cp -r $(CHAPTERS)/images $(OUTDIR)
+	asciidoctor $(MAIN) -a i18n=$(LANG) -a img_path=../../assets/images -a stylesheet=./styles/rubygems.css --attribute tabsize=4 -o $(OUTDIR)/$(LANG)/index.html
+	# cp -r $(CHAPTERS)/images $(OUTDIR)
 
 .PHONY: pdf
 pdf: $(SOURCES) styles/$(CSS)
-	asciidoctor-pdf $(MAIN) --attribute tabsize=4 -o $(OUTDIR)/$(BASE).pdf
+	asciidoctor-pdf $(MAIN) -a i18n=$(LANG) -a img_path=$(PWD)/assets/images --attribute tabsize=4 -o $(OUTDIR)/pdf/$(LANG)_$(MAIN).pdf
 
 .PHONY: clean
 clean:

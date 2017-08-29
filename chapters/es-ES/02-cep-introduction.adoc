@@ -11,11 +11,11 @@ Un flujo de eventos está identificado por un nombre y tiene un conjunto de atri
 Los eventos están asociados únicamente a un flujo y tienen un conjunto de atributos idénticos con tipos específicos. Un evento debe contener una marca de tiempo y los atributos de acuerdo a su esquema.
 
 .Flujo de eventos
-image::images/event-flow.png[]
+image::{img_path}/event-flow.png[]
 
 TIP: Supongamos que definimos un flujo de eventos llamado "*figuras*" (Véase **Figure 1**) en el cuál se irá recibiendo una figura aleatoria a lo largo del tiempo. Un esquema válido para este flujo sería: figura = { id: int, shape: string, color: string, sides: int, timestamp: long }
 
-==== Consultas
+=== Consultas
 
 Siddhi dispone de un lenguaje DSL que permite operar con los eventos recibidos en un flujo. Con este lenguaje se pueden diseñar consultas.
 
@@ -29,7 +29,7 @@ Las consultas son construcciones lógicas que deriva nuevos streams al combinar 
 
 Cada consulta de Siddhi puede consumir uno o varios flujos de eventos y crea un nuevo flujo de salida a partir de ellos.
 
-===== Proyecciones en las consultas
+==== Proyecciones en las consultas
 
 Una consulta de Siddhi tiene tres partes claramente diferenciables en sus consulta, una entrada (*from*), una salida (*insert into*) y una sección de proyección (*select*). Siddhi soporta las siguientes proyecciones:
 
@@ -53,7 +53,7 @@ Permite seleccionar todos los atributos del esquema definido.
 
 En la consulta anterior estamos seleccionando del flujo de eventos "inputStream" todos los atributos y los estamos insertando en el flujo de salida "outputStrem". En este caso práctico la entrada es igual a la salida.
 
-* Renombrado de atributos
+* *Renombrado de atributos*
 
 Permite renombra los atributos seleccionados del esquema definido.
 
@@ -63,7 +63,7 @@ Permite renombra los atributos seleccionados del esquema definido.
 
 En la consulta anterior estamos seleccionando del flujo "inputStream" los atributos "attributeA" y "attributeB" y los estamos insertando en el flujo de salida "outputStream" como atributos "fieldA" y "fieldB".
 
-* Introducir los valores por defecto
+* *Introducir los valores por defecto*
 
 Permite introducir valores por defecto, este valor sobreescribe el del atributo si este existiera.
 
@@ -73,7 +73,7 @@ Permite introducir valores por defecto, este valor sobreescribe el del atributo 
 
 En la consulta anterior estamos seleccionando del flujo "inputStream" el atributo "attributeA" y estamos insertando el atributo "attributeB" con valor por defecto "valueB" en el flujo de salida "outputStream".
 
-* Uso de expresiones matemáticas y lógicas
+* *Uso de expresiones matemáticas y lógicas*
 
 Siddhi permite el uso de expresiones matemáticas y lógicas en sus proyecciones. En la siguiente tabla se hace referencia a ellas:
 

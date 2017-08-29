@@ -712,9 +712,10 @@ b.conum * { color: inherit !important; }
 <li><a href="#_capítulo_1_introducción_a_redborder_cep">Capítulo 1: Introducción a redBorder CEP</a>
 <ul class="sectlevel2">
 <li><a href="#_redborder_cep">RedBorder CEP</a></li>
-<li><a href="#_flujo_de_eventos">Flujo de eventos</a>
+<li><a href="#_flujo_de_eventos">Flujo de eventos</a></li>
+<li><a href="#_consultas">Consultas</a>
 <ul class="sectlevel3">
-<li><a href="#_consultas">Consultas</a></li>
+<li><a href="#_proyecciones_en_las_consultas">Proyecciones en las consultas</a></li>
 <li><a href="#_filtros">Filtros</a></li>
 <li><a href="#_ventanas">Ventanas</a></li>
 </ul>
@@ -741,7 +742,7 @@ b.conum * { color: inherit !important; }
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="images/redBorder-cep.jpg" alt="redBorder cep">
+<img src="../../assets/images/redborder-cep.jpg" alt="redborder cep">
 </div>
 <div class="title">Figure 1. Arquitectura de redBorder CEP</div>
 </div>
@@ -769,7 +770,7 @@ b.conum * { color: inherit !important; }
 <p>Funciones integradas utiles para el procesamiento de eventos como, por ejemplo, ventanas de tiempo.</p>
 </li>
 <li>
-<p>Renombrado de atributos.
+<p>Renombrado de atributos
 == Capítulo 2: Correlación de Eventos Complejos</p>
 </li>
 </ul>
@@ -791,7 +792,7 @@ b.conum * { color: inherit !important; }
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="images/event-flow.png" alt="event flow">
+<img src="../../assets/images/event-flow.png" alt="event flow">
 </div>
 <div class="title">Figure 2. Flujo de eventos</div>
 </div>
@@ -807,8 +808,9 @@ Supongamos que definimos un flujo de eventos llamado "<strong>figuras</strong>" 
 </tr>
 </table>
 </div>
-<div class="sect3">
-<h4 id="_consultas">Consultas</h4>
+</div>
+<div class="sect2">
+<h3 id="_consultas">Consultas</h3>
 <div class="paragraph">
 <p>Siddhi dispone de un lenguaje DSL que permite operar con los eventos recibidos en un flujo. Con este lenguaje se pueden diseñar consultas.</p>
 </div>
@@ -827,8 +829,8 @@ Supongamos que definimos un flujo de eventos llamado "<strong>figuras</strong>" 
 <div class="paragraph">
 <p>Cada consulta de Siddhi puede consumir uno o varios flujos de eventos y crea un nuevo flujo de salida a partir de ellos.</p>
 </div>
-<div class="sect4">
-<h5 id="_proyecciones_en_las_consultas">Proyecciones en las consultas</h5>
+<div class="sect3">
+<h4 id="_proyecciones_en_las_consultas">Proyecciones en las consultas</h4>
 <div class="paragraph">
 <p>Una consulta de Siddhi tiene tres partes claramente diferenciables en sus consulta, una entrada (<strong>from</strong>), una salida (<strong>insert into</strong>) y una sección de proyección (<strong>select</strong>). Siddhi soporta las siguientes proyecciones:</p>
 </div>
@@ -875,7 +877,7 @@ Supongamos que definimos un flujo de eventos llamado "<strong>figuras</strong>" 
 <div class="ulist">
 <ul>
 <li>
-<p>Renombrado de atributos</p>
+<p><strong>Renombrado de atributos</strong></p>
 </li>
 </ul>
 </div>
@@ -895,7 +897,7 @@ Supongamos que definimos un flujo de eventos llamado "<strong>figuras</strong>" 
 <div class="ulist">
 <ul>
 <li>
-<p>Introducir los valores por defecto</p>
+<p><strong>Introducir los valores por defecto</strong></p>
 </li>
 </ul>
 </div>
@@ -915,7 +917,7 @@ Supongamos que definimos un flujo de eventos llamado "<strong>figuras</strong>" 
 <div class="ulist">
 <ul>
 <li>
-<p>Uso de expresiones matemáticas y lógicas</p>
+<p><strong>Uso de expresiones matemáticas y lógicas</strong></p>
 </li>
 </ul>
 </div>
@@ -989,7 +991,6 @@ Supongamos que definimos un flujo de eventos llamado "<strong>figuras</strong>" 
 <p><strong>from</strong> TempStream
 <strong>select</strong> roomNo, temp * 9/5 + 32 <strong>as</strong> temp, 'F' <strong>as</strong> scale, roomNo &gt;= 100 and roomNo &lt; 110 as isServerRoom
 <strong>insert into</strong> RoomTempStream;</p>
-</div>
 </div>
 </div>
 </div>
