@@ -7,7 +7,7 @@ MAIN=$(LANG)_$(BASE).adoc
 .PHONY: html
 html: $(SOURCES) styles/$(CSS)
 	asciidoctor $(MAIN) -a stylesheet=./styles/rubygems.css --attribute tabsize=4 -o $(OUTDIR)/$(LANG)/index.html
-	cp -r $(CHAPTERS)/images $(OUTDIR)/$(LANG)
+	cp -r $(CHAPTERS)/images $(OUTDIR)
 
 .PHONY: pdf
 pdf: $(SOURCES) styles/$(CSS)
