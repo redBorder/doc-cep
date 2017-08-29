@@ -712,6 +712,13 @@ b.conum * { color: inherit !important; }
 <li><a href="#_capítulo_1_introducción_a_redborder_cep">Capítulo 1: Introducción a redBorder CEP</a>
 <ul class="sectlevel2">
 <li><a href="#_redborder_cep">RedBorder CEP</a></li>
+<li><a href="#_flujo_de_eventos">Flujo de eventos</a>
+<ul class="sectlevel3">
+<li><a href="#_consultas">Consultas</a></li>
+<li><a href="#_filtros">Filtros</a></li>
+<li><a href="#_ventanas">Ventanas</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -762,9 +769,600 @@ b.conum * { color: inherit !important; }
 <p>Funciones integradas utiles para el procesamiento de eventos como, por ejemplo, ventanas de tiempo.</p>
 </li>
 <li>
-<p>Renombrado de atributos.</p>
+<p>Renombrado de atributos.
+== Capítulo 2: Correlación de Eventos Complejos</p>
 </li>
 </ul>
+</div>
+<div class="paragraph">
+<p>En este capítulo introduciremos algunos conceptos básicos sobre la correlación de eventos complejos. En primer lugar definiremos los conceptos básicos y elementos.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_flujo_de_eventos">Flujo de eventos</h3>
+<div class="paragraph">
+<p>Siddhi utiliza el concepto de flujo de eventos para referirse a una secuencia de eventos ordenados en el tiempo con un esquema de atributos definido. Uno o varios de estos eventos pueden ser importados y manipulados usando consultas para identificar condiciones de eventos complejos. Estas consultas generarán nuevos eventos que son notificados como respuesta.</p>
+</div>
+<div class="paragraph">
+<p>Un flujo de eventos está identificado por un nombre y tiene un conjunto de atributos asociados inequívocamente identificables, definiendo su esquema. Los atributos tienen un nombre único dentro del flujo de eventos y pueden ser de los siguientes tipos: <code>string</code>, <code>int</code>, <code>long</code>, <code>float</code>, <code>double</code>, <code>bool</code> u <code>object</code>.</p>
+</div>
+<div class="paragraph">
+<p>Los eventos están asociados únicamente a un flujo y tienen un conjunto de atributos idénticos con tipos específicos. Un evento debe contener una marca de tiempo y los atributos de acuerdo a su esquema.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/event-flow.png" alt="event flow">
+</div>
+<div class="title">Figure 2. Flujo de eventos</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+Supongamos que definimos un flujo de eventos llamado "<strong>figuras</strong>" (Véase <strong>Figure 1</strong>) en el cuál se irá recibiendo una figura aleatoria a lo largo del tiempo. Un esquema válido para este flujo sería: figura = { id: int, shape: string, color: string, sides: int, timestamp: long }
+</td>
+</tr>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_consultas">Consultas</h4>
+<div class="paragraph">
+<p>Siddhi dispone de un lenguaje DSL que permite operar con los eventos recibidos en un flujo. Con este lenguaje se pueden diseñar consultas.</p>
+</div>
+<div class="paragraph">
+<p>Las consultas son construcciones lógicas que deriva nuevos streams al combinar streams ya existentes. Una consulta continene uno o varios flujos de eventos, manipuladores para modificar aquellos flujos de entrada, y un flujo de salida en el que publicar los eventos generados.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="paragraph">
+<p><strong>from</strong> &lt;input stream name&gt;
+<strong>select</strong> &lt;attribute name&gt;, &lt;attribute name&gt;, …
+<strong>insert into</strong> &lt;output stream name&gt;</p>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>Cada consulta de Siddhi puede consumir uno o varios flujos de eventos y crea un nuevo flujo de salida a partir de ellos.</p>
+</div>
+<div class="sect4">
+<h5 id="_proyecciones_en_las_consultas">Proyecciones en las consultas</h5>
+<div class="paragraph">
+<p>Una consulta de Siddhi tiene tres partes claramente diferenciables en sus consulta, una entrada (<strong>from</strong>), una salida (<strong>insert into</strong>) y una sección de proyección (<strong>select</strong>). Siddhi soporta las siguientes proyecciones:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Selección de los atributos necesario</strong></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Permite seleccionar aquellos atributos del esquema definido que necesitamos.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="paragraph">
+<p><strong>from</strong> inputStream <strong>select</strong> attributeA, attributeB <strong>insert into</strong> outputStream</p>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>En la consulta anterior estamos seleccionando del flujo de eventos "inputStream" los atributos "attributeA" y "attributeB" y los estamos insertando en el flujo de salida "outputStream".</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Selección de todos los atributos</strong></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Permite seleccionar todos los atributos del esquema definido.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="paragraph">
+<p><strong>from</strong> inputStream <strong>select</strong> * <strong>insert into</strong> outputStream</p>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>En la consulta anterior estamos seleccionando del flujo de eventos "inputStream" todos los atributos y los estamos insertando en el flujo de salida "outputStrem". En este caso práctico la entrada es igual a la salida.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Renombrado de atributos</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Permite renombra los atributos seleccionados del esquema definido.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="paragraph">
+<p><strong>from</strong> inputStream <strong>select</strong> attributeA <strong>as</strong> fieldA, attributeB <strong>as</strong> fieldB <strong>insert into</strong> outputStream</p>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>En la consulta anterior estamos seleccionando del flujo "inputStream" los atributos "attributeA" y "attributeB" y los estamos insertando en el flujo de salida "outputStream" como atributos "fieldA" y "fieldB".</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Introducir los valores por defecto</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Permite introducir valores por defecto, este valor sobreescribe el del atributo si este existiera.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="paragraph">
+<p><strong>from</strong> inputStream <strong>select</strong> attributeA, 'valueB' as attributeB <strong>insert into</strong> outputStream</p>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>En la consulta anterior estamos seleccionando del flujo "inputStream" el atributo "attributeA" y estamos insertando el atributo "attributeB" con valor por defecto "valueB" en el flujo de salida "outputStream".</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Uso de expresiones matemáticas y lógicas</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Siddhi permite el uso de expresiones matemáticas y lógicas en sus proyecciones. En la siguiente tabla se hace referencia a ellas:</p>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Operador</th>
+<th class="tableblock halign-left valign-top">Descripción</th>
+<th class="tableblock halign-left valign-top">Ejemplo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">()</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Alcance</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>(cost + tax) * 0.5</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">IS NULL</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Comprueba si un atributo es nulo</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">is null</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">NOT</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Negación lógica</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">not (price &gt; 10)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">* / %</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Multiplicación, división y módulo</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">temp * 9/5 + 32</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">+ -</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Suma y resta</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">temp * 9/5 + 32</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&lt; &#8656; &gt; &#8656;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Comparaciones: menos que, mayor o igual que, mayor que, menor o igual que</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">totalCost &gt;= price * quantity</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">== !=</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Comparaciones: Igual, distinto</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">totalCost &gt;= price * quantity</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">AND</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Conjunción lógica (Y)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">temp &lt; 40 and (humidity &lt; 40 or humidity &gt;= 60)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">OR</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Disyunción lógica (O)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">temp &lt; 40 and (humidity &lt; 40 or humidity &gt;= 60)</p></td>
+</tr>
+</tbody>
+</table>
+<div class="sidebarblock">
+<div class="content">
+<div class="paragraph">
+<p><strong>from</strong> TempStream
+<strong>select</strong> roomNo, temp * 9/5 + 32 <strong>as</strong> temp, 'F' <strong>as</strong> scale, roomNo &gt;= 100 and roomNo &lt; 110 as isServerRoom
+<strong>insert into</strong> RoomTempStream;</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_filtros">Filtros</h4>
+<div class="paragraph">
+<p>Siddhi tiene la capacidad de aplicar filtros a sus flujos de entrada permitiendo filtrar los eventos que se van recibiendo por el criterio que deseemos.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="paragraph">
+<p><strong>from</strong> &lt;input stream name&gt;[&lt;filter condition&gt;]
+<strong>select</strong> &lt;attribute name&gt;, &lt;attribute name&gt;, &#8230;&#8203;
+<strong>insert into</strong> &lt;output stream name&gt;</p>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>Las operaciones que pueden utilizarse para la creación de un filtro son:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Operaciones de comparación menor que (<strong>&lt;</strong>), menor o igual que (<strong>&#8656;</strong>), mayor que (<strong>&gt;</strong>), mayor o igual que (<strong>&gt;=</strong>), igual a (<strong>==</strong>) y distinto (<strong>!=</strong>).</p>
+</li>
+<li>
+<p>Operaciones lógicas de conjunción (<strong>and</strong>), disyunción (<strong>or</strong>) y negación (<strong>not</strong>)</p>
+</li>
+<li>
+<p>Operación de comprobación de contenido de cadena (<strong>contains</strong>)</p>
+</li>
+<li>
+<p>Operación de tipo de dato (<strong>instanceof</strong>)</p>
+</li>
+</ul>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="paragraph">
+<p><strong>from</strong> TempStream [ (roomNo &gt;= 100 and roomNo &lt; 110) and temp &gt; 40 ]
+<strong>select</strong> roomNo, temp
+<strong>insert into</strong> HighTempStream;</p>
+</div>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+En el ejemplo anterior se está aplicando un filtro en el flujo de entrada <strong>TempStream</strong> en el cual se escifica que el número de habitación sea mayor o igual a 100 y menor a 110 y cuya temperatura sea de mayor de 40.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_ventanas">Ventanas</h4>
+<div class="paragraph">
+<p>Siddhi dispone de funciones de ventanas que permiten recolectar y trabajar sobre un subconjunto limitado de eventos.</p>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+Los flujos de eventos de entradas sólo pueden tener una función de ventana asociada.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Las funciones de ventanas pueden emitir dos tipos eventos por cada evento que consumen: Los eventos actuales y los eventos que han expirado. La función de ventana emite los eventos actuales (<strong>current-event</strong>) cuando llega un nuevo evento y emite los eventos expirados (<strong>expired-event</strong>) cuando un evento expira debido al criterio de la ventana.</p>
+</div>
+<div class="paragraph">
+<p>La salida de las funciones de ventana puede ser manipulada en base a la clasificación de los eventos.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="paragraph">
+<p><strong>from</strong> &lt;input stream name&gt;[ &lt;filter condition&gt; ]#window.&lt;windowFunction&gt;
+<strong>select</strong> &lt;attribute name&gt;, &lt;attribute name&gt;, &#8230;&#8203;
+<strong>insert</strong> [ <strong><em>expired events</em></strong> | <strong><em>current events</em></strong> | <strong><em>all events</em></strong> ] <strong>into</strong> &lt;output stream name&gt;</p>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>Según la clasificación de los eventos:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>expired events</strong>: La ventana emitirá los eventos que hayan expirado.</p>
+</li>
+<li>
+<p><strong>current events</strong>: La ventana emitirá los eventos cada vez que se reciba uno.</p>
+</li>
+<li>
+<p><strong>all events</strong>: La ventana emitirá tanto los eventos actuales como los que han expirado.</p>
+</li>
+</ul>
+</div>
+<div class="sect4">
+<h5 id="_agregaciones">Agregaciones</h5>
+<div class="paragraph">
+<p>Siddhi dispone de una serie de funciones de agregación para llevar a cabo cálculos de los valores de los atributos indicados dentro de la ventana definida. Para ello los atributos tienen que ser de tipo <code>int</code>, <code>long</code>, <code>double</code> o <code>float</code>. Estas agregaciones son:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>sum</strong>: Calcula la suma &#x27f6; <em>sum(&lt;my-attribute&gt;) as mySum</em></p>
+</li>
+<li>
+<p><strong>average</strong>: Calcula la media &#x27f6; <em>avg(&lt;my-attribute&gt;) as myAvg</em></p>
+</li>
+<li>
+<p><strong>max</strong>: Obtiene el máximo valor &#x27f6; <em>max(&lt;my-attribute&gt;) as myMax</em></p>
+</li>
+<li>
+<p><strong>min</strong>: Obtiene el mínimo valor &#x27f6; <em>min(&lt;my-attribute&gt;) as myMin</em></p>
+</li>
+<li>
+<p><strong>count</strong>: Cuenta el número de eventos recibidos &#x27f6; <em>count() as events</em></p>
+</li>
+<li>
+<p><strong>stddev</strong>: Calcula la desviación estandar &#x27f6; <em>stddev(&lt;my-attribute&gt;) as myStddev</em></p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+Nótese que a las funciones de agregación se le aplica un renombrado, esto se debe a que siddhi no reconoce las funciones de agregación como atributos del flujo de eventos con el que se está trabajando.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Si no se aplicaran funciones de agregación entonces obtendríamos una salida igual a la entrada del flujo, variando únicamente en el tiempo de emisión de los eventos que depende del tipo de ventana utilzada.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_tipos_de_ventanas">Tipos de ventanas</h5>
+<div class="paragraph">
+<p>Siddhi ofrece las siguientes funciones de ventana:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Ventana de tiempo</strong>: &lt;event&gt; time(&lt;int|long|time&gt; windowTime)</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Ventana deslizante que mantiene los eventos que se han recibido durante el último periodo de tiempo "<strong>windowTime</strong>".</p>
+</div>
+<div class="paragraph">
+<p><strong>Ejemplo</strong>: Calcular la suma del valor del atributo "<strong>attrA</strong>" de los eventos que estén dentro de la ventana de 15 segundos.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="paragraph">
+<p><strong>from</strong> inputStream#window.time(15 sec) select sum(attrA) insert into outputStream</p>
+</div>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Ventana de tiempo por lotes</strong>: &lt;event&gt; timeBatch(&lt;int|long|time&gt; windowTime)</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Ventana que procesa los eventos por lotes. Recolecta los eventos recibidos dentro del último periodo "<strong>windowTime</strong>" y los agrupa en un único lote.</p>
+</div>
+<div class="paragraph">
+<p><strong>Ejemplo</strong>: Calcular la suma del valor del atributo "<strong>attrA</strong>" de los eventos recolectados cada 15 segundos.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="paragraph">
+<p><strong>from</strong> inputStream#window.timeBatch(15 sec) select sum(attrA) insert into outputStream</p>
+</div>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Ventana de longitud</strong>: &lt;event&gt; length(&lt;int&gt; windowLength)</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Ventana deslizante que mantiene los últimos elementos recibidos en una ventana de tamaño "<strong>windowLength</strong>".</p>
+</div>
+<div class="paragraph">
+<p><strong>Ejemplo</strong>: Calcular la suma del valor del atributo "<strong>attrA</strong>" de los 5 últimos evetnos recibidos.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="paragraph">
+<p><strong>from</strong> inputStream#window.length(5) select sum(attrA) insert into outputStream</p>
+</div>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Ventana de longitud por lotes</strong>: &lt;event&gt; lengthBatch(&lt;int&gt; windowLength)</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Ventana deslizante que emite los eventos como un lote a la llegada del i-ésimo evento en una ventana de tamaño "<strong>windowLength</strong>".</p>
+</div>
+<div class="paragraph">
+<p><strong>Ejemplo</strong>: Calcular la suma del valor del atributo "<strong>attrA</strong>" cada 5 eventos recolectados.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="paragraph">
+<p><strong>from</strong> inputStream#window.lengthBatch(5) select sum(attrA) insert into outputStream</p>
+</div>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Ventana deslizante de tiempo externo</strong>: &lt;event&gt; time(&lt;long&gt; timestmap, &lt;int|long|time&gt; windowTime)</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Ventana deslizante que trabaja con el tiempo proporcionado por el flujo de eventos de entrada en lugar de utilizar el de la máquina.</p>
+</div>
+<div class="paragraph">
+<p><strong>Ejemplo</strong>: Calcular la suma del valor del atributo "attrA" utilizando una ventana de tiempo de 15 segundos y cuya marca de tiempo vendrá determinada por el campo "timestamp" del flujo de eventos entrante que está procesando.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="paragraph">
+<p><strong>from</strong> inputStream#window.externalTime(timestamp, 15 sec) select sum(attrA) insert into outputStream</p>
+</div>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Ventana deslizante con cron</strong>: &lt;event&gt; cron(&lt;string&gt; cronExpression)</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Ventana deslizante que procesa los eventos en base a un patrón de tiempo basado en una expresión de cron.</p>
+</div>
+<div class="paragraph">
+<p><strong>Ejemplo</strong>: Calcular la suma del valor del atributo "attrA" cada 5 segundos.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="paragraph">
+<p><strong>from</strong> inputStream#window.cron('*/5 * * * * ?') select sum(attrA) insert into outputStream</p>
+</div>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Ventana deslizante de primeras únicas ocurrencias</strong>: &lt;event&gt; firstUnique(&lt;string&gt; attribute)</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Ventana que mantiene únicamente los primeros eventos que son únicos en base a un atributo especificado.</p>
+</div>
+<div class="paragraph">
+<p><strong>Ejemplo</strong>: Obtener el primer evento de todas las IPs.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="paragraph">
+<p><strong>from</strong> inputStream#window.firstUnique(ip) select * insert into outputStream</p>
+</div>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Ventana deslizante de últimas ocurrencias únicas</strong>: &lt;event&gt; unique(&lt;string&gt; attribute)</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Ventana que mantiene los últimos eventos que son únicos en base a un atributo especificado.</p>
+</div>
+<div class="paragraph">
+<p><strong>Ejemplo</strong>: Obtener el último evento único de todas las IPs.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="paragraph">
+<p><strong>from</strong> inputStream#window.unique(ip) select * insert into outputStream</p>
+</div>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Ventana deslizante de ordenamiento</strong>: &lt;event&gt; sort(&lt;int&gt; windowLength, &lt;string&gt; attribute, &lt;string&gt; order, .. , &lt;string&gt; attributeN, &lt;string&gt; orderN)</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Ventana que ordena los atributos especificados de forma ascendete o descendente.</p>
+</div>
+<div class="paragraph">
+<p><strong>Ejemplo</strong>: Mantener 5 eventos ordenados por precio de forma ascendente.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="paragraph">
+<p><strong>from</strong> inputStream#window.sort(5, price, asc) select * insert into outputStream</p>
+</div>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Ventana deslizante de frecuencia</strong>: &lt;event&gt; frequent(&lt;int&gt; eventCount, &lt;string&gt; attribute, .. , &lt;string&gt; attributeN)</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Ventana que devuelve los últimos eventos más frecuentes recibidos. El cálculo de la frecuencia se basa en el algoritmo de contenio Misra-Gries.</p>
+</div>
+<div class="paragraph">
+<p><strong>Ejemplo</strong>: Obtener los 3 eventos más frecuentes.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="paragraph">
+<p><strong>from</strong> inputStream#window.frequent(3) select * insert into outputStream</p>
+</div>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Ventana deslizante de frecuencia con pérdidas</strong>: &lt;event&gt; lossyFrequent(&lt;double&gt; supportThreshold, &lt;double&gt; errorBound)</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Ventana que identificará y devolverá todos los eventos cuya frecuencia exceda el valor "<strong>supportThreshold</strong>". El cálculo de la frecuencia se basa en el algoritmo de <em>Lossy Counting</em></p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="paragraph">
+<p><strong>from</strong> inputStream#window.lossyFrequent(0.1, 0.01) select * insert into outputStream</p>
+</div>
+</div>
+</div>
+</div>
 </div>
 </div>
 </div>
