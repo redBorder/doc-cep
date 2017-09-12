@@ -1,0 +1,64 @@
+== Capítulo 3: Patrones y secuencias
+
+En este capítulo hablaremos sobre los patrones y secuencias, cuáles son las principales diferencias y cómo podemos crear reglas acorde a ellos.
+
+=== Patrones
+
+Los patrones permiten a los flujos de eventos correlar en el tiempo y detectar patrones basados en un orden de llegada. Con los patrones puede haber otros eventos entre aquellos que hacen match con nuestra regla. Los patrones pueden correlar los eventos de múltiples fuentes o de una única fuente, por lo tanto cada evento que haga match necesita ser referenciado para que pueda ser accedido en el futuro para su procesado y generación de su salida.
+
+La sintaxis de un patrón es como sigue a continuación:
+
+*****
+*from* {every} <input event reference>=<input stream *name*>[<filter condition>] -&#62; {every} <input event reference>=<input stream name>[<filter condition>] -&#62; ...
+    within <*time* gap>
+*select* <input event reference>.<attribute *name*>, <input event reference>.<attribute *name*>, ...
+*insert into* <output stream *name*>
+*****
+
+En esta sintaxis podemos apreciar varios detalles:
+
+* En la expresión `{every} <input event reference>=<input stream *name*>[<filter condition>] -&#62;`:
+** La palabra clave `*every*` indica si queremos que el patrón sólo haga _match_ una única vez (omitiendo dicha palabra clave). Hay que usar apropiadamente esta palabra reservada, ya que si la utilizamos, el patrón hará _match_ por cada evento que cumpla la condición.
+** `<input event reference>=` es la referencia del evento que ha hecho _match_ para su posible uso en el futuro.
+** `<input stream *name*>[<filter condition>]` es el flujo de eventos de entradas. Pueden aplicarse filtros para excluir aquellos eventos que no cumplan con las condiciones que se especifiquen.
+** `-&#62;` con este operador podemos correlar la llegada de los eventos entrantes, pudiendo tener varios eventos entre aquellos que hacen _match_.
+
+WARNING: Hay que tener en cuenta que a los flujos de entradas no se le pueden asociar ventanas de tiempo.
+
+Para establecer un intervalo de tiempo en el que evaluar el patrón se utiliza la expresión `within <time gap>`. `<time gap>` es una expresión que utiliza el tipo especial de datos `Time`. `Time` es un tipo compuesto por un entero (`int`) y una unidad (`unit`) de tiempo, el tipo de datos `Time` realmente devuelve un número de tipo `long`, así que simplemente es un tipo que ayuda al usuario a definir intervalos de tiempo de una forma más cómoda y natural. En la siguiente tabla podemos observar los tipos de unidades así como ejemplos:
+
+[grid="rows",format="csv"]
+[options="header",cols="^,^,^,^"]
+|======================
+Unidad, Sintaxis, Ejemplo, Devuelve
+Año, year | years, 1 year, 217728000000
+Mes, month | months, 1 month, 18144000000
+Semana, week | weeks, 1 week, 604800000
+Day, day | days, 1 day, 86400000
+Hour, hour | hours, 1 hour, 3600000
+Minutos, minute | minutes | min, 1 min, 60000
+Segundos, second | seconds | sec, 1 sec, 1000
+Milisegundos, millisecond | milliseconds, 1 millisecond, 1
+|======================
+
+El tipo `Time` no está limitado a sólo el uso de un tipo de unidad, sino que puede combinarse con varias unidades para hacer intervalos más precisos, como por ejemplo: `1 hour 30 min` para indicar una hora y media devolviendo como resultado `5400000`.
+
+Hay que tener en cuenta que cuando se utiliza la expresión `within <time gap>` estamos estableciendo un intervalo en el cual todos los patrones tienen que hacer _match_. En caso contrario todos los eventos que han hecho _match_ y a los cuales se tienen referencia serán descartados, comenzando de nuevo con el proceso.
+
+Para asentar mejor lo explicado, vamos a analizar el siguiente patrón de ejemplo:
+
+*****
+*from* every( e1=TempStream ) -&#62; e2=TempStream[e1.roomNo==roomNo and (e1.*temp* + 5) <&#61; *temp* ]
+    within 10 *min*
+*select* e1.roomNo, e1.*temp as* initialTemp, e2.*temp as* finalTemp
+*insert into* AlertStream;
+*****
+
+En primer lugar tenemos la expresión `every e1=TempStream`, con la que simplemente estamos capturando los eventos del flujo `TempStream` y los estamos referenciando con `e1`. Podemos observar que tenemos la palabra clave `every` indicando de esta forma que este patrón puede hacer _match_ en más de una ocasión. Como no hay filtros aplicados este patrón hará _match_ por cada evento que llegue de entrada y estos serán almacenados con sus correspondientes referencias.
+
+En segundo lugar tenemos la expresión `e2=TempStream[e1.roomNo==roonNo and (e1.temp + 5) <&#61; temp ]` en este caso estamos capturando un evento que cumpla con el siguiente filtro:
+
+* Si el número de habitación del último evento recibido del primer patrón (`e1`) coincide con el número de habitación del segundo evento (Para hacer uso de los atributos de los eventos capturados no se utiliza ningún tipo de referencia)
+* Y si la temperatura ha incrementado en 5 grados con respecto al último evento recibido del primer patrón pero es menor o igual que el del propio evento capturado.
+
+Entonces el patrón completo hace _match_, obteniendo el número de habitación, la temperatura inicial y la temperatura final inyectando los datos en el flujo de salida `AlertStream`. Sin embargo debemos de tener en cuenta la expresión `within 10 min` que nos indica que todas estas condiciones tienen que cumplirse en un intervalo de tiempo de 10 minutos.
