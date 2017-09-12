@@ -20,3 +20,4 @@
 include::chapters/{i18n}/01-introduction.adoc[]
 include::chapters/{i18n}/02-cep-introduction.adoc[]
 include::chapters/{i18n}/03-patterns-and-sequences.adoc[]
+include::chapters/{i18n}/04-partitions.adoc[]
