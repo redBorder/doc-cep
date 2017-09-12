@@ -271,3 +271,5 @@ Ventana que identificará y devolverá todos los eventos cuya frecuencia exceda 
 *****
 *from* inputStream#window.lossyFrequent(0.1, 0.01) select * insert into outputStream
 *****
+
+

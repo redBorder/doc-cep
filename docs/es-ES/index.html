@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generator" content="Asciidoctor 1.5.5">
+<meta name="generator" content="Asciidoctor 1.5.6.1">
 <meta name="keywords" content="redborder, cep, correlation, siddhi, wso2, rb">
 <meta name="author" content="redborder">
 <title>RedBorder CEP documentation</title>
@@ -726,6 +726,22 @@ b.conum * { color: inherit !important; }
 </li>
 </ul>
 </li>
+<li><a href="#_capítulo_3_patrones_y_secuencias">Capítulo 3: Patrones y secuencias</a>
+<ul class="sectlevel2">
+<li><a href="#_patrones">Patrones</a>
+<ul class="sectlevel3">
+<li><a href="#_patrones_lógicos">Patrones lógicos</a></li>
+<li><a href="#_patrones_de_conteo">Patrones de conteo</a></li>
+</ul>
+</li>
+<li><a href="#_secuencias">Secuencias</a>
+<ul class="sectlevel3">
+<li><a href="#_secuencias_lógicas">Secuencias lógicas</a></li>
+<li><a href="#_secuencias_de_conteo">Secuencias de conteo</a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
@@ -1371,6 +1387,363 @@ Nótese que a las funciones de agregación se le aplica un renombrado, esto se d
 </div>
 </div>
 </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_capítulo_3_patrones_y_secuencias">Capítulo 3: Patrones y secuencias</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>En este capítulo hablaremos sobre los patrones y secuencias, cuáles son las principales diferencias y cómo podemos crear reglas acorde a ellos.</p>
+</div>
+<div class="sect2">
+<h3 id="_patrones">Patrones</h3>
+<div class="paragraph">
+<p>Los patrones permiten a los flujos de eventos correlar en el tiempo y detectar patrones basados en un orden de llegada. Con los patrones puede haber otros eventos entre aquellos que hacen <em>match</em> con nuestra regla. Los patrones pueden correlar los eventos de múltiples fuentes o de una única fuente, por lo tanto cada evento que haga <em>match</em> necesita ser referenciado para que pueda ser accedido en el futuro para su procesado y generación de su salida.</p>
+</div>
+<div class="paragraph">
+<p>La sintaxis de un patrón es como sigue a continuación:</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="paragraph">
+<p><strong>from</strong> {<strong>every</strong>} &lt;input event reference&gt;=&lt;input stream name&gt;[&lt;filter condition&gt;] -&#62; {<strong>every</strong>} &lt;input event reference&gt;=&lt;input stream name&gt;[&lt;filter condition&gt;] -&#62; &#8230;&#8203;
+    <strong>within</strong> &lt;time gap&gt;
+<strong>select</strong> &lt;input event reference&gt;.&lt;attribute name&gt;, &lt;input event reference&gt;.&lt;attribute name&gt;, &#8230;&#8203;
+<strong>insert into</strong> &lt;output stream name&gt;</p>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>En esta sintaxis podemos apreciar varios detalles:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>En la expresión <code>{every} &lt;input event reference&gt;=&lt;input stream name&gt;[&lt;filter condition&gt;] -&#62;</code>:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>La palabra clave <code><strong>every</strong></code> indica si queremos que el patrón sólo haga <em>match</em> una única vez (omitiendo dicha palabra clave). Hay que usar apropiadamente esta palabra reservada, ya que si la utilizamos, el patrón hará <em>match</em> por cada evento que cumpla la condición.</p>
+</li>
+<li>
+<p><code>&lt;input event reference&gt;=</code> es la referencia del evento que ha hecho <em>match</em> para su posible uso en el futuro.</p>
+</li>
+<li>
+<p><code>&lt;input stream name&gt;[&lt;filter condition&gt;]</code> es el flujo de eventos de entradas. Pueden aplicarse filtros para excluir aquellos eventos que no cumplan con las condiciones que se especifiquen.</p>
+</li>
+<li>
+<p><code>-&#62;</code> con este operador podemos correlar la llegada de los eventos entrantes, pudiendo tener varios eventos entre aquellos que hacen <em>match</em>.</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+Hay que tener en cuenta que a los flujos de entradas no se le pueden asociar ventanas de tiempo.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Para establecer un intervalo de tiempo en el que evaluar el patrón se utiliza la expresión <code>within &lt;time gap&gt;</code>. <code>&lt;time gap&gt;</code> es una expresión que utiliza el tipo especial de datos <code>Time</code>. <code>Time</code> es un tipo compuesto por un entero (<code>int</code>) y una unidad (<code>unit</code>) de tiempo, el tipo de datos <code>Time</code> realmente devuelve un número de tipo <code>long</code>, así que simplemente es un tipo que ayuda al usuario a definir intervalos de tiempo de una forma más cómoda y natural. En la siguiente tabla podemos observar los tipos de unidades así como ejemplos:</p>
+</div>
+<table class="tableblock frame-all grid-rows spread">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-center valign-top">Unidad</th>
+<th class="tableblock halign-center valign-top">Sintaxis</th>
+<th class="tableblock halign-center valign-top">Ejemplo</th>
+<th class="tableblock halign-center valign-top">Devuelve</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-center valign-top"><p class="tableblock">Año</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">year | years</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">1 year</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">217728000000</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-top"><p class="tableblock">Mes</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">month | months</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">1 month</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">18144000000</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-top"><p class="tableblock">Semana</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">week | weeks</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">1 week</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">604800000</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-top"><p class="tableblock">Day</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">day | days</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">1 day</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">86400000</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-top"><p class="tableblock">Hour</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">hour | hours</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">1 hour</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">3600000</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-top"><p class="tableblock">Minutos</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">minute | minutes | min</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">1 min</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">60000</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-top"><p class="tableblock">Segundos</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">second | seconds | sec</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">1 sec</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">1000</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-top"><p class="tableblock">Milisegundos</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">millisecond | milliseconds</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">1 millisecond</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">1</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>El tipo <code>Time</code> no está limitado a sólo el uso de un tipo de unidad, sino que puede combinarse con varias unidades para hacer intervalos más precisos, como por ejemplo: <code>1 hour 30 min</code> para indicar una hora y media devolviendo como resultado <code>5400000</code>.</p>
+</div>
+<div class="paragraph">
+<p>Hay que tener en cuenta que cuando se utiliza la expresión <code>within &lt;time gap&gt;</code> estamos estableciendo un intervalo en el cual todos los patrones tienen que hacer <em>match</em>. En caso contrario todos los eventos que han hecho <em>match</em> y a los cuales se tienen referencia serán descartados, comenzando de nuevo con el proceso.</p>
+</div>
+<div class="paragraph">
+<p>Para asentar mejor lo explicado, vamos a analizar el siguiente patrón de ejemplo:</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="paragraph">
+<p><strong>from every</strong> (e1=TempStream) -&#62; e2=TempStream[e1.roomNo==roomNo <strong>and</strong> (e1.temp + 5) &lt;&#61; temp]
+    <strong>within</strong> 10 min
+<strong>select</strong> e1.roomNo, e1.temp <strong>as</strong> initialTemp, e2.temp <strong>as</strong> finalTemp
+<strong>insert into</strong> AlertStream;</p>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>En primer lugar tenemos la expresión <code>every e1=TempStream</code>, con la que simplemente estamos capturando los eventos del flujo <code>TempStream</code> y los estamos referenciando con <code>e1</code>. Podemos observar que tenemos la palabra clave <code>every</code> indicando de esta forma que este patrón puede hacer <em>match</em> en más de una ocasión. Como no hay filtros aplicados este patrón hará <em>match</em> por cada evento que llegue de entrada y estos serán almacenados con sus correspondientes referencias.</p>
+</div>
+<div class="paragraph">
+<p>En segundo lugar tenemos la expresión <code>e2=TempStream[e1.roomNo==roonNo and (e1.temp + 5) &lt;&#61; temp ]</code> en este caso estamos capturando un evento que cumpla con el siguiente filtro:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Si el número de habitación del último evento recibido del primer patrón (<code>e1</code>) coincide con el número de habitación del segundo evento (Para hacer uso de los atributos de los eventos capturados no se utiliza ningún tipo de referencia)</p>
+</li>
+<li>
+<p>Y si la temperatura ha incrementado en 5 grados con respecto al último evento recibido del primer patrón pero es menor o igual que el del propio evento capturado.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Entonces el patrón completo hace <em>match</em>, obteniendo el número de habitación, la temperatura inicial y la temperatura final inyectando los datos en el flujo de salida <code>AlertStream</code>. Sin embargo debemos de tener en cuenta la expresión <code>within 10 min</code> que nos indica que todas estas condiciones tienen que cumplirse en un intervalo de tiempo de 10 minutos.</p>
+</div>
+<div class="paragraph">
+<p>Por lo tanto esta regla se leería de la siguiente forma: <strong><em>Alerta cuando la temperatura de una habitación incremente 5 grados en un intervalo de 10 minutos</em></strong></p>
+</div>
+<div class="paragraph">
+<p>A continuación veremos dos tipos de patrones que pueden utilizarse para dar más flexibilidad a este tipo de correlación.</p>
+</div>
+<div class="sect3">
+<h4 id="_patrones_lógicos">Patrones lógicos</h4>
+<div class="paragraph">
+<p>Los patrones no tienen por qué hacer <em>match</em> cuando llegan los eventos en un orden temporal, en ocasiones necesitaremos relaciones lógicas para definir el comportamiento de un patrón y así ofrecer más flexibilidad.</p>
+</div>
+<div class="paragraph">
+<p>Las palabra claves como <code>and</code> (conjunción lógica "Y") y <code>or</code> (disyunción lógica "O") pueden ser utilizadas en lugar de "-&#62;" para ilustrar relaciones lógicas.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Con el operador <code>and</code> deben de cumplirse las condiciones de dos eventos para que el patrón pueda hacer <em>match</em>.</p>
+</li>
+<li>
+<p>Con el operador <code>or</code> debe de cumplirse al menos una de las condiciones para que el patrón pueda hacer <em>match</em>.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Veamos el siguiente ejemplo:</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="paragraph">
+<p><strong>from every</strong> (e1=RegulatorStream) -&#62; e2=TempStream[e1.roomNo==roomNo <strong>and</strong> e1.tempSet &lt;&#61; temp] <strong>or</strong> e3=RegulatorStream[e1.roomNo==roomNo]
+<strong>select</strong> e1.roomNo, e2.temp <strong>as</strong> roomTemp
+<strong>having</strong> e3 <strong>is</strong> null
+<strong>insert into</strong> AlertStream;</p>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>Este ejemplo se parece mucho al visto en la sección anterior, sin embargo podemos ver la siguiente expresión: <code>e2=TempStream[e1.roomNo==roomNo and e1.tempSet &lt;&#61; <strong>temp</strong> ] or e3=RegulatorStream[e1.roomNo==roomNo]</code></p>
+</div>
+<div class="paragraph">
+<p>En dicha expresión estamos evaluando que si la habitación es la mismas para el evento del primer patrón y la temperatura es menor o igual que el evento del segundo patrón o si por el contrario no lo es pero en cambio sí coincide que la habitación es la misma para el evento del tercer patrón. Entonces hace <em>match</em> y se dispara.</p>
+</div>
+<div class="paragraph">
+<p>Sin embargo debemos de tener en cuenta la expresión <code>having e3 is null</code>. La palabra reservada <code>having</code> nos permite filtrar los eventos después de una agregación o de un procesado de eventos. Así finalmente estamos añadiendo un filtro en el cual estamos especificando que el evento del tercer patrón (referenciado como <code>e3</code>) tiene que ser nulo, condición que se cumple si el primer patrón y el segundo patrón se cumplen. En caso contrario no se disparará el patrón.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_patrones_de_conteo">Patrones de conteo</h4>
+<div class="paragraph">
+<p>Los patrones de conteo nos permiten hacer <em>match</em> de múltiples eventos que contemplan la misma condición. El número de eventos esperados puede ser limitado usando los siguientes operadores:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Con <code>&lt;N:M&gt;</code> contará de <code>N</code> a <code>M</code> eventos, así por ejemplo <code>&lt;1:4&gt;</code> contará de 1 a 4 eventos.</p>
+</li>
+<li>
+<p>Con <code>&lt;N:&gt;</code> contará a partir de <code>N</code> eventos, así por ejemplo <code>&lt;2:&gt;</code> contará a partir de 2 eventos.</p>
+</li>
+<li>
+<p>Con <code>&lt;:M&gt;</code> contará hasta <code>M</code> eventos, así por ejemplo <code>&lt;:5&gt;</code> contará hasta 5 eventos.</p>
+</li>
+<li>
+<p>Con <code>&lt;X&gt;</code> contará exactamente <code>X</code> eventos, así por ejemplo <code>&lt;5&gt;</code> contará exactamente 5 eventos.</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+La diferencia entre <code>&lt;:M&gt;</code> y <code>&lt;X&gt;</code> es que con el operador <code>&lt;X&gt;</code> estamos indicando que el patrón se tiene que cumplir exactamente X veces para que ocurra un <em>match</em> mientras que con el operador <code>&lt;:M&gt;</code> estamos indicando que se puede cumplir hasta M veces pero haciendo <em>match</em> por cada vez.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Observemos la siguiente regla:</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="paragraph">
+<p><strong>from every</strong> (e1=RegulatorStream) -&#62; e2=TempStream[e1.roomNo==roomNo]&lt;1:&gt; -&#62; e3=RegulatorStream[e1.roomNo==roomNo]
+<strong>select</strong> e1.roomNo, e2[0].temp - e2[<strong>last</strong>].temp <strong>as</strong> tempDiff
+<strong>insert into</strong> TempDiffStream;</p>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>En ella tenemos la siguiente expresión <code>e2=TempStream[e1.roomNo==roomNo]&lt;1:&gt;</code> de conteo definido, para este caso estamos poniendo como limitante que haya uno o más eventos para poder hacer <em>match</em>.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_secuencias">Secuencias</h3>
+<div class="paragraph">
+<p>Las secuencias, al igual que los patrones, permiten correlar sobre los eventos recibidos y detectar secuencias de eventos según su orden de llegada. A diferencia de los patrones, en una secuencia no puede haber otros eventos entre aquellos que hacen <em>match</em> con nuestra regla. Las secuencias pueden currerlar los eventos de múltiples fuentes o de una única fuente, por lo tanto cada evento que haga <em>match</em> necesita ser referenciado para que pueda ser accedido en el futuro para su procesado y generación de su salida.</p>
+</div>
+<div class="paragraph">
+<p>La sintaxis de una secuencia es como sigue a continuación:</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="paragraph">
+<p><strong>from</strong> {<strong>every</strong>} &lt;input event reference&gt;=&lt;input stream name&gt;[&lt;filter condition&gt;], &lt;input event reference&gt;=&lt;input stream name&gt;[&lt;filter condition&gt;]{+|&#42;|?}, &#8230;&#8203;
+    <strong>within</strong> &lt;time gap&gt;
+<strong>select</strong> &lt;input event reference&gt;.&lt;attribute name&gt;, &lt;input event reference&gt;.&lt;attribute name&gt;, &#8230;&#8203;
+<strong>insert into</strong> &lt;output stream name&gt;</p>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>Al igual que ocurre con los patrones, las secuencias no pueden tener una ventana asociada. Podemos observar que hay una gran similitud en cuanto a los patrones con la única diferencia en que el delimitador es una coma (<code>,</code>). El resto de elementos son totalmente análogos al uso de patrones salvo el conteo que se explicará en sucesivas secciones.</p>
+</div>
+<div class="sect3">
+<h4 id="_secuencias_lógicas">Secuencias lógicas</h4>
+<div class="paragraph">
+<p>Las secuencias no sólo hacen <em>match</em> en eventos consecutivos sino que pueden ser correlados con relaciones lógicas. Para ello podemos utilizar las palabras claves <code>and</code> y <code>or</code> del mismo modo que se utilizand en los patrones.</p>
+</div>
+<div class="paragraph">
+<p>Por ejemplo</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="paragraph">
+<p><strong>from every</strong> e1=RegulatorStream, e2=TempStream <strong>and</strong> e3=HumidStream
+<strong>select</strong> e2.temp, e3.humid
+<strong>insert into</strong> StateNotificationStream;</p>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>En el ejemplo anterior estamos indicando que cuando llegue un evento del flujo de eventos del regulador y seguidamente llegue un evento del sensor de temperatura y de humedad, obtengamos la temperatura y humedad de cada evento y lo notifiquemos.</p>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+Tengamos en cuenta nuevamente que es necesario que los eventos sean consecutivos no pudiendo existir otros eventos que no sean relevantes entre cada <em>match</em> de la regla.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_secuencias_de_conteo">Secuencias de conteo</h4>
+<div class="paragraph">
+<p>Las secuencias nos permite hacer <em>match</em> con múltiples eventos consecutivos en base a unas condiciones. A diferencia de los patrones, las secuencias tiene otros limitadores de eventos que se resumen a continuación:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Con <code>*</code> estamos indicando ninguno o muchos.</p>
+</li>
+<li>
+<p>Con <code>+</code> estamos indicando uno o muchos.</p>
+</li>
+<li>
+<p>Con <code>?</code> estamos indicando ninguno o uno.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Tal y como ocurre con los patrones, se puede hacer referencia a los eventos capturados utilizado los índices o la palabra clave <code>last</code>.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="paragraph">
+<p><strong>from every</strong> e1=TempStream, e2=TempStream[e1.temp &lt;&#61; temp]+, e3=TempStream[e2[<strong>last</strong>].temp &gt; temp]
+<strong>select</strong> e1.temp <strong>as</strong> initialTemp, e2[<strong>last</strong>].temp <strong>as</strong> peakTemp
+<strong>insert into</strong> TempDiffStream;</p>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>En el ejemplo anterior podemos ver la expresión <code>e2=TempStream[e1.temp &lt;&#61; temp]+</code> donde estamos indicando que se reciban uno o más eventos.</p>
 </div>
 </div>
 </div>
