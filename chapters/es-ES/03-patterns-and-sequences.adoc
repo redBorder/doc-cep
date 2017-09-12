@@ -111,3 +111,53 @@ Observemos la siguiente regla:
 *****
 
 En ella tenemos la siguiente expresión `e2=TempStream[e1.roomNo==roomNo]<1:>` de conteo definido, para este caso estamos poniendo como limitante que haya uno o más eventos para poder hacer _match_.
+
+=== Secuencias
+
+Las secuencias, al igual que los patrones, permiten correlar sobre los eventos recibidos y detectar secuencias de eventos según su orden de llegada. A diferencia de los patrones, en una secuencia no puede haber otros eventos entre aquellos que hacen match con nuestra regla. Las secuencias pueden currerlar los eventos de múltiples fuentes o de una única fuente, por lo tanto cada evento que haga _match_ necesita ser referenciado para que pueda ser accedido en el futuro para su procesado y generación de su salida.
+
+La sintaxis de una secuencia es como sigue a continuación:
+
+****
+*from* {*every*} <input event reference>=<input stream name>[<filter condition>], <input event reference>=<input stream name>[<filter condition>]{+|&#42;|?}, ...
+    *within* <time gap>
+*select* <input event reference>.<attribute name>, <input event reference>.<attribute name>, ...
+*insert into* <output stream name>
+****
+
+Al igual que ocurre con los patrones, las secuencias no pueden tener una ventana asociada. Podemos observar que hay una gran similitud en cuanto a los patrones con la única diferencia en que el delimitador es una coma (`,`). El resto de elementos son totalmente análogos al uso de patrones salvo el conteo que se explicará en sucesivas secciones.
+
+==== Secuencias lógicas
+
+Las secuencias no sólo hacen _match_ en eventos consecutivos sino que pueden ser correlados con relaciones lógicas. Para ello podemos utilizar las palabras claves `and` y `or` del mismo modo que se utilizand en los patrones.
+
+Por ejemplo
+
+*****
+*from every* e1=RegulatorStream, e2=TempStream and e3=HumidStream
+*select* e2.temp, e3.humid
+*insert into* StateNotificationStream;
+*****
+
+En el ejemplo anterior estamos indicando que cuando llegue un evento del flujo de eventos del regulador y seguidamente llegue un evento del sensor de temperatura y de humedad, obtengamos la temperatura y humedad de cada evento y lo notifiquemos.
+
+WARNING: Tengamos en cuenta nuevamente que es necesario que los eventos sean consecutivos no pudiendo existir otros eventos que no sean relevantes entre cada _match_ de la regla.
+
+
+==== Secuencias de conteo
+
+Las secuencias nos permite hacer _match_ con múltiples eventos consecutivos en base a unas condiciones. A diferencia de los patrones, las secuencias tiene otros limitadores de eventos que se resumen a continuación:
+
+* Con `*` estamos indicando ninguno o muchos.
+* Con `+` estamos indicando uno o muchos.
+* Con `?` estamos indicando ninguno o uno.
+
+Tal y como ocurre con los patrones, se puede hacer referencia a los eventos capturados utilizado los índices o la palabra clave `last`.
+
+*****
+*from every* e1=TempStream, e2=TempStream[e1.temp <&#61; temp]+, e3=TempStream[e2[last].temp > temp]
+*select* e1.temp *as* initialTemp, e2[last].temp *as* peakTemp
+*insert into* TempDiffStream;
+*****
+
+En el ejemplo anterior podemos ver la expresión `e2=TempStream[e1.temp <&#61; temp]+` donde estamos indicando que se reciban uno o más eventos.
