@@ -64,3 +64,50 @@ En segundo lugar tenemos la expresión `e2=TempStream[e1.roomNo==roonNo and (e1.
 Entonces el patrón completo hace _match_, obteniendo el número de habitación, la temperatura inicial y la temperatura final inyectando los datos en el flujo de salida `AlertStream`. Sin embargo debemos de tener en cuenta la expresión `within 10 min` que nos indica que todas estas condiciones tienen que cumplirse en un intervalo de tiempo de 10 minutos.
 
 Por lo tanto esta regla se leería de la siguiente forma: *_Alerta cuando la temperatura de una habitación incremente 5 grados en un intervalo de 10 minutos_*
+
+A continuación veremos dos tipos de patrones que pueden utilizarse para dar más flexibilidad a este tipo de correlación.
+
+==== Patrones lógicos
+
+Los patrones no tienen por qué hacer _match_ cuando llegan los eventos en un orden temporal, en ocasiones necesitaremos relaciones lógicas para definir el comportamiento de un patrón y así ofrecer más flexibilidad.
+
+Las palabra claves como `and` (conjunción lógica "Y") y `or` (disyunción lógica "O") pueden ser utilizadas en lugar de "-&#62;" para ilustrar relaciones lógicas.
+
+* Con el operador `and` deben de cumplirse las condiciones de dos eventos para que el patrón pueda hacer _match_.
+* Con el operador `or` debe de cumplirse al menos una de las condiciones para que el patrón pueda hacer _match_.
+
+Veamos el siguiente ejemplo:
+
+*****
+*from* every( e1=RegulatorStream ) -&#62; e2=TempStream[e1.roomNo==roomNo and e1.tempSet <&#61; *temp* ] or e3=RegulatorStream[e1.roomNo==roomNo]
+*select* e1.roomNo, e2.*temp as* roomTemp
+*having* e3 *is* null
+*insert into* AlertStream;
+*****
+
+Este ejemplo se parece mucho al visto en la sección anterior, sin embargo podemos ver la siguiente expresión: `e2=TempStream[e1.roomNo==roomNo and e1.tempSet <&#61; *temp* ] or e3=RegulatorStream[e1.roomNo==roomNo]`
+
+En dicha expresión estamos evaluando que si la habitación es la mismas para el evento del primer patrón y la temperatura es menor o igual que el evento del segundo patrón o si por el contrario no lo es pero en cambio sí coincide que la habitación es la misma para el evento del tercer patrón. Entonces hace _match_ y se dispara.
+
+Sin embargo debemos de tener en cuenta la expresión `having e3 is null`. La palabra reservada `having` nos permite filtrar los eventos después de una agregación o de un procesado de eventos. Así finalmente estamos añadiendo un filtro en el cual estamos especificando que el evento del tercer patrón (referenciado como `e3`) tiene que ser nulo, condición que se cumple si el primer patrón y el segundo patrón se cumplen. En caso contrario no se disparará el patrón.
+
+==== Patrones de conteo
+
+Los patrones de conteo nos permiten hacer _match_ de múltiples eventos que contemplan la misma condición. El número de eventos esperados puede ser limitado usando los siguientes operadores:
+
+* Con `<N:M>` contará de `N` a `M` eventos, así por ejemplo `<1:4>` contará de 1 a 4 eventos.
+* Con `<N:>` contará a partir de `N` eventos, así por ejemplo `<2:>` contará a partir de 2 eventos.
+* Con `<:M>` contará hasta `M` eventos, así por ejemplo `<:5>` contará hasta 5 eventos.
+* Con `<X>` contará exactamente `X` eventos, así por ejemplo `<5>` contará exactamente 5 eventos.
+
+WARNING: La diferencia entre `<:M>` y `<X>` es que con el operador `<X>` estamos indicando que el patrón se tiene que cumplir exactamente X veces para que ocurra un _match_ mientras que con el operador `<:M>` estamos indicando que se puede cumplir hasta M veces pero haciendo _match_ por cada vez.
+
+Observemos la siguiente regla:
+
+*****
+*from* every(e1=RegulatorStream) -&#62; e2=TempStream[e1.roomNo==roomNo]<1:> -&#62; e3=RegulatorStream[e1.roomNo==roomNo]
+*select* e1.roomNo, e2[0].temp - e2[last].temp *as* tempDiff
+*insert into* TempDiffStream;
+*****
+
+En ella tenemos la siguiente expresión `e2=TempStream[e1.roomNo==roomNo]<1:>` de conteo definido, para este caso estamos poniendo como limitante que haya uno o más eventos para poder hacer _match_.
