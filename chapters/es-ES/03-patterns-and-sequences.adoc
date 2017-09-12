@@ -161,3 +161,6 @@ Tal y como ocurre con los patrones, se puede hacer referencia a los eventos capt
 *****
 
 En el ejemplo anterior podemos ver la expresión `e2=TempStream[e1.temp <&#61; temp]+` donde estamos indicando que se reciban uno o más eventos.
+
+
+
