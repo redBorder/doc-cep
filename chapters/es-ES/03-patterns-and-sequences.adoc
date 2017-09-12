@@ -62,3 +62,5 @@ En segundo lugar tenemos la expresión `e2=TempStream[e1.roomNo==roonNo and (e1.
 * Y si la temperatura ha incrementado en 5 grados con respecto al último evento recibido del primer patrón pero es menor o igual que el del propio evento capturado.
 
 Entonces el patrón completo hace _match_, obteniendo el número de habitación, la temperatura inicial y la temperatura final inyectando los datos en el flujo de salida `AlertStream`. Sin embargo debemos de tener en cuenta la expresión `within 10 min` que nos indica que todas estas condiciones tienen que cumplirse en un intervalo de tiempo de 10 minutos.
+
+Por lo tanto esta regla se leería de la siguiente forma: *_Alerta cuando la temperatura de una habitación incremente 5 grados en un intervalo de 10 minutos_*
