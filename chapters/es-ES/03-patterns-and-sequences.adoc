@@ -9,7 +9,7 @@ Los patrones permiten a los flujos de eventos correlar en el tiempo y detectar p
 La sintaxis de un patrón es como sigue a continuación:
 
 *****
-*from* {*every*} <input event reference>=<input stream *name*>[<filter condition>] -&#62; {*every*} <input event reference>=<input stream name>[<filter condition>] -&#62; ...
+*from* {*every*} <input event reference>=<input stream name>[<filter condition>] -&#62; {*every*} <input event reference>=<input stream name>[<filter condition>] -&#62; ...
     *within* <time gap>
 *select* <input event reference>.<attribute name>, <input event reference>.<attribute name>, ...
 *insert into* <output stream name>
@@ -17,10 +17,10 @@ La sintaxis de un patrón es como sigue a continuación:
 
 En esta sintaxis podemos apreciar varios detalles:
 
-* En la expresión `{every} <input event reference>=<input stream *name*>[<filter condition>] -&#62;`:
+* En la expresión `{every} <input event reference>=<input stream name>[<filter condition>] -&#62;`:
 ** La palabra clave `*every*` indica si queremos que el patrón sólo haga _match_ una única vez (omitiendo dicha palabra clave). Hay que usar apropiadamente esta palabra reservada, ya que si la utilizamos, el patrón hará _match_ por cada evento que cumpla la condición.
 ** `<input event reference>=` es la referencia del evento que ha hecho _match_ para su posible uso en el futuro.
-** `<input stream *name*>[<filter condition>]` es el flujo de eventos de entradas. Pueden aplicarse filtros para excluir aquellos eventos que no cumplan con las condiciones que se especifiquen.
+** `<input stream name>[<filter condition>]` es el flujo de eventos de entradas. Pueden aplicarse filtros para excluir aquellos eventos que no cumplan con las condiciones que se especifiquen.
 ** `-&#62;` con este operador podemos correlar la llegada de los eventos entrantes, pudiendo tener varios eventos entre aquellos que hacen _match_.
 
 WARNING: Hay que tener en cuenta que a los flujos de entradas no se le pueden asociar ventanas de tiempo.
