@@ -1,0 +1,101 @@
+== Capítulo 4: Particiones
+
+Con las particiones Siddhi puede dividir tanto los eventos de entradas como las consultas y procesarlos en paralelo. Cada partición será etiquetada por una clave y todos aquellos eventos correspondientes a dicha partición serán procesados. Las particiones pueden tener más de una consulta.
+
+Las claves de particionado se pueden clasificar en dos tipos:
+
+* Particionado por variable: Las cuales utilizan un atributo de cadena (`string`)
+* Particionado por rango: Las cuales utilizan atributos numéricos
+
+=== Particionado por variable
+
+Como se ha indicado anteriormente este tipo de particionado utiliza atributos de cadena para particionar. Su sintaxis es la siguiente:
+
+*****
+*partition with* ( <attribute name> *of* <stream name>, <attribute name> *of* <stream name>, ... )
+*begin*
+    <query>
+    <query>
+    ...
+*end*;
+*****
+
+Con la expresión `<attribute name> *of* <stream name>` estamos definiendo qué atributo de qué flujo de eventos se utilizará para el particionado.
+
+Dentro de una partición puede haber varias consultas que son iguales para cada partición. Veamos un ejemplo:
+
+*****
+*partition with* ( deviceID *of* TempStream )
+*begin*
+    *from* TempStream#window.length(10)
+    *select* roomNo, deviceID, max(temp) *as* maxTemp
+    *insert into* DeviceTempStream
+*end*;
+*****
+
+En este ejemplo estamos haciendo un particionado por ID de dispositivo, si tenemos tres dispositivos tendremos un total de tres particiones que en paralelo realizarán la consulta para cada dispositivo de forma independiente.
+
+==== Particionado por rango
+
+El particionado por rango utiliza atributos numéricos para hacer el particionado. Su sintaxis es la siguiente:
+
+*****
+*partition with* ( <condition> *as* <partition key> *or* <condition> *as* <partition key> *or* ... *of* <stream name>, ... )
+*begin*
+    <query>
+    <query>
+    ...
+*end*;
+*****
+
+En este tipo de particionado podemos observar la siguiente expresión `<condition> *as* <partition key> *or* <condition> *as* <partition key> *or* ... *of* <stream name>` donde:
+
+* `<condition> *as* <partition key>`: Se trata de una condición que debe de cumplirse, pueden utilizarse operadores lógicos `or` y `and`. si se observa la condición es renombrada para su uso como clave de particionado.
+* expresiones `or`: Sirven para concatenar las claves de particionado.
+* `*of* <stream name>`: Para designar al flujo de eventos al cual pertenecen las claves de particionado.
+
+*****
+*partition with* ( roomNo>=1030 *as* 'serverRoom' *or* roomNo<1030 *and* roomNo>=330 *as* 'officeRoom' *or* roomNo<330 *as* 'lobby' *of* TempStream) )
+*begin*
+    *from* TempStream#window.time(10 min)
+    *select* roomNo, deviceID, avg(temp) *as* avgTemp
+    *insert into* AreaTempStream
+*end*;
+*****
+
+En este ejemplo estamos haciendo un particionado por habitaciones, veamos qué estamos definiendo exactamente:
+
+* `roomNo>=1030 *as* 'serverRoom'`: Estamos particionando por `serverRoom` que son aquellas cuyo número es mayor de `1030`.
+* `roomNo<1030 *and* roomNo>=330 *as* 'officeRoom'`: Estamos particionando por `officeRoom` que son aquellas habitaciones cuyo número está comprendido entre `1031` y `330`
+* `roomNo<330 *as* 'lobby'`: Estamos particionando por `lobby` que son aquellas habitaciones cuya numeración están por debajo de `330`.
+
+Así que básicamente estamos particionando por `serverRoom`, `officeRoom` y `lobby` pertenecientes al flujo de eventos `TempStream`.
+
+Con este ejemplo podemos ver la utilidad de utilizar rangos, ya que en vez de particionar por cada habitación (que tendría un coste computacional alto) estamos particionando por rangos, haciendo sólo tres tipos de particionados (uno por cada tipo de habitación).
+
+==== Flujos internos
+
+En ocasiones tendremos la necesidad de utilizar flujos que no están definidos para su uso y que pueden servir para, por ejemplo, dividir las consultas en pasos en caso de cumplir ciertas condiciones.
+
+Siddhi tiene la capacidad de generar flujos internos. Estos flujos internos suelen ser usados dentro de las particiones para comunicar unas consultas con otras de la misma partición. Los flujos internos comienzan con una almohadilla (`#`).
+
+WARNING: Los flujos internos no pueden accedidos fuera del bloque de particionado, es decir, es necesario que los flujos internos pertenezcan a una partición sin posibilidad de intercambiar información entre particiones.
+
+*****
+*partition with* ( deviceID *of* TempStream )
+*begin*
+    *from* TempStream#window.time(1 min)
+    *select* roomNo, deviceID, temp, avg(temp) *as* avgTemp
+    *insert into* #AvgTempStream;
+    *from* #AvgTempStream[avgTemp > 20]#window.length(10)
+    *select* roomNo, deviceID, max(temp) *as* maxTemp
+    *insert into* deviceTempStream
+*end*;
+*****
+
+En este ejemplo estamos particionando por ID de dispositivo y estamos aplicando flujos internos para utilizar dos consultas:
+
+* En la primera consulta estamos obteniendo el número de habitación, el ID del dispositivo, la temperatura en el instante y la temperatura media y lo estamos inyectando en el flujo `#AvgTempStream`.
+* En la segunda consulta estamos extrayendo los eventos de `#AvgTempStream` y filtrando aquellos cuya temperatura media es mayor a `20`, para acumularlos hasta obtener `10` para posteriormente obtener el número de habitación, ID de dispositivo y la temperatura máxima.
+
+Como puede observarse el uso de flujos internos puede ser interesante para llevar a cabo ciertas operaciones y consultas.
