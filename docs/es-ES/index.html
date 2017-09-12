@@ -742,6 +742,16 @@ b.conum * { color: inherit !important; }
 </li>
 </ul>
 </li>
+<li><a href="#_capítulo_4_particiones">Capítulo 4: Particiones</a>
+<ul class="sectlevel2">
+<li><a href="#_particionado_por_variable">Particionado por variable</a>
+<ul class="sectlevel3">
+<li><a href="#_particionado_por_rango">Particionado por rango</a></li>
+<li><a href="#_flujos_internos">Flujos internos</a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
@@ -1744,6 +1754,186 @@ Tengamos en cuenta nuevamente que es necesario que los eventos sean consecutivos
 </div>
 <div class="paragraph">
 <p>En el ejemplo anterior podemos ver la expresión <code>e2=TempStream[e1.temp &lt;&#61; temp]+</code> donde estamos indicando que se reciban uno o más eventos.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_capítulo_4_particiones">Capítulo 4: Particiones</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Con las particiones Siddhi puede dividir tanto los eventos de entradas como las consultas y procesarlos en paralelo. Cada partición será etiquetada por una clave y todos aquellos eventos correspondientes a dicha partición serán procesados. Las particiones pueden tener más de una consulta.</p>
+</div>
+<div class="paragraph">
+<p>Las claves de particionado se pueden clasificar en dos tipos:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Particionado por variable: Las cuales utilizan un atributo de cadena (<code>string</code>)</p>
+</li>
+<li>
+<p>Particionado por rango: Las cuales utilizan atributos numéricos</p>
+</li>
+</ul>
+</div>
+<div class="sect2">
+<h3 id="_particionado_por_variable">Particionado por variable</h3>
+<div class="paragraph">
+<p>Como se ha indicado anteriormente este tipo de particionado utiliza atributos de cadena para particionar. Su sintaxis es la siguiente:</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="paragraph">
+<p><strong>partition with</strong> ( &lt;attribute name&gt; <strong>of</strong> &lt;stream name&gt;, &lt;attribute name&gt; <strong>of</strong> &lt;stream name&gt;, &#8230;&#8203; )
+<strong>begin</strong>
+    &lt;query&gt;
+    &lt;query&gt;
+    &#8230;&#8203;
+<strong>end</strong>;</p>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>Con la expresión <code>&lt;attribute name&gt; <strong>of</strong> &lt;stream name&gt;</code> estamos definiendo qué atributo de qué flujo de eventos se utilizará para el particionado.</p>
+</div>
+<div class="paragraph">
+<p>Dentro de una partición puede haber varias consultas que son iguales para cada partición. Veamos un ejemplo:</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="paragraph">
+<p><strong>partition with</strong> ( deviceID <strong>of</strong> TempStream )
+<strong>begin</strong>
+    <strong>from</strong> TempStream#window.length(10)
+    <strong>select</strong> roomNo, deviceID, max(temp) <strong>as</strong> maxTemp
+    <strong>insert into</strong> DeviceTempStream
+<strong>end</strong>;</p>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>En este ejemplo estamos haciendo un particionado por ID de dispositivo, si tenemos tres dispositivos tendremos un total de tres particiones que en paralelo realizarán la consulta para cada dispositivo de forma independiente.</p>
+</div>
+<div class="sect3">
+<h4 id="_particionado_por_rango">Particionado por rango</h4>
+<div class="paragraph">
+<p>El particionado por rango utiliza atributos numéricos para hacer el particionado. Su sintaxis es la siguiente:</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="paragraph">
+<p><strong>partition with</strong> ( &lt;condition&gt; <strong>as</strong> &lt;partition key&gt; <strong>or</strong> &lt;condition&gt; <strong>as</strong> &lt;partition key&gt; <strong>or</strong> &#8230;&#8203; <strong>of</strong> &lt;stream name&gt;, &#8230;&#8203; )
+<strong>begin</strong>
+    &lt;query&gt;
+    &lt;query&gt;
+    &#8230;&#8203;
+<strong>end</strong>;</p>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>En este tipo de particionado podemos observar la siguiente expresión <code>&lt;condition&gt; <strong>as</strong> &lt;partition key&gt; <strong>or</strong> &lt;condition&gt; <strong>as</strong> &lt;partition key&gt; <strong>or</strong> &#8230;&#8203; <strong>of</strong> &lt;stream name&gt;</code> donde:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>&lt;condition&gt; <strong>as</strong> &lt;partition key&gt;</code>: Se trata de una condición que debe de cumplirse, pueden utilizarse operadores lógicos <code>or</code> y <code>and</code>. si se observa la condición es renombrada para su uso como clave de particionado.</p>
+</li>
+<li>
+<p>expresiones <code>or</code>: Sirven para concatenar las claves de particionado.</p>
+</li>
+<li>
+<p><code><strong>of</strong> &lt;stream name&gt;</code>: Para designar al flujo de eventos al cual pertenecen las claves de particionado.</p>
+</li>
+</ul>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="paragraph">
+<p><strong>partition with</strong> ( roomNo&gt;=1030 <strong>as</strong> 'serverRoom' <strong>or</strong> roomNo&lt;1030 <strong>and</strong> roomNo&gt;=330 <strong>as</strong> 'officeRoom' <strong>or</strong> roomNo&lt;330 <strong>as</strong> 'lobby' <strong>of</strong> TempStream) )
+<strong>begin</strong>
+    <strong>from</strong> TempStream#window.time(10 min)
+    <strong>select</strong> roomNo, deviceID, avg(temp) <strong>as</strong> avgTemp
+    <strong>insert into</strong> AreaTempStream
+<strong>end</strong>;</p>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>En este ejemplo estamos haciendo un particionado por habitaciones, veamos qué estamos definiendo exactamente:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>roomNo&gt;=1030 <strong>as</strong> 'serverRoom'</code>: Estamos particionando por <code>serverRoom</code> que son aquellas cuyo número es mayor de <code>1030</code>.</p>
+</li>
+<li>
+<p><code>roomNo&lt;1030 <strong>and</strong> roomNo&gt;=330 <strong>as</strong> 'officeRoom'</code>: Estamos particionando por <code>officeRoom</code> que son aquellas habitaciones cuyo número está comprendido entre <code>1031</code> y <code>330</code></p>
+</li>
+<li>
+<p><code>roomNo&lt;330 <strong>as</strong> 'lobby'</code>: Estamos particionando por <code>lobby</code> que son aquellas habitaciones cuya numeración están por debajo de <code>330</code>.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Así que básicamente estamos particionando por <code>serverRoom</code>, <code>officeRoom</code> y <code>lobby</code> pertenecientes al flujo de eventos <code>TempStream</code>.</p>
+</div>
+<div class="paragraph">
+<p>Con este ejemplo podemos ver la utilidad de utilizar rangos, ya que en vez de particionar por cada habitación (que tendría un coste computacional alto) estamos particionando por rangos, haciendo sólo tres tipos de particionados (uno por cada tipo de habitación).</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_flujos_internos">Flujos internos</h4>
+<div class="paragraph">
+<p>En ocasiones tendremos la necesidad de utilizar flujos que no están definidos para su uso y que pueden servir para, por ejemplo, dividir las consultas en pasos en caso de cumplir ciertas condiciones.</p>
+</div>
+<div class="paragraph">
+<p>Siddhi tiene la capacidad de generar flujos internos. Estos flujos internos suelen ser usados dentro de las particiones para comunicar unas consultas con otras de la misma partición. Los flujos internos comienzan con una almohadilla (<code>#</code>).</p>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+Los flujos internos no pueden accedidos fuera del bloque de particionado, es decir, es necesario que los flujos internos pertenezcan a una partición sin posibilidad de intercambiar información entre particiones.
+</td>
+</tr>
+</table>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="paragraph">
+<p><strong>partition with</strong> ( deviceID <strong>of</strong> TempStream )
+<strong>begin</strong>
+    <strong>from</strong> TempStream#window.time(1 min)
+    <strong>select</strong> roomNo, deviceID, temp, avg(temp) <strong>as</strong> avgTemp
+    <strong>insert into</strong> #AvgTempStream;
+    <strong>from</strong> #AvgTempStream[avgTemp &gt; 20]#window.length(10)
+    <strong>select</strong> roomNo, deviceID, max(temp) <strong>as</strong> maxTemp
+    <strong>insert into</strong> deviceTempStream
+<strong>end</strong>;</p>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>En este ejemplo estamos particionando por ID de dispositivo y estamos aplicando flujos internos para utilizar dos consultas:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>En la primera consulta estamos obteniendo el número de habitación, el ID del dispositivo, la temperatura en el instante y la temperatura media y lo estamos inyectando en el flujo <code>#AvgTempStream</code>.</p>
+</li>
+<li>
+<p>En la segunda consulta estamos extrayendo los eventos de <code>#AvgTempStream</code> y filtrando aquellos cuya temperatura media es mayor a <code>20</code>, para acumularlos hasta obtener <code>10</code> para posteriormente obtener el número de habitación, ID de dispositivo y la temperatura máxima.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Como puede observarse el uso de flujos internos puede ser interesante para llevar a cabo ciertas operaciones y consultas.</p>
 </div>
 </div>
 </div>
